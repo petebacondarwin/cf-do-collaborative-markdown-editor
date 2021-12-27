@@ -1,20 +1,18 @@
 {
   "compilerOptions": {
-    "outDir": "./dist",
-    "module": "commonjs",
     "target": "esnext",
     "lib": ["esnext"],
     "alwaysStrict": true,
     "strict": true,
-    "preserveConstEnums": true,
+    "noEmitOnError": true,
     "moduleResolution": "node",
-    "sourceMap": true,
+    "outDir": "tscOutDir",
+    "preserveConstEnums": true,
     "esModuleInterop": true,
     "types": [
       "@cloudflare/workers-types",
-      "@types/jest",
-      "@types/service-worker-mock"
-    ]
+      "jest"
+    ]      
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist", "test"]

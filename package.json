@@ -1,40 +1,35 @@
 {
-  "name": "worker-typescript-template",
+  "private": true,
+  "name": "my-typescript-worker",
   "version": "1.0.0",
-  "description": "Cloudflare worker TypeScript template",
-  "main": "dist/worker.js",
+  "description": "A practice worker project",
+  "module": "./dist/index.mjs",
   "scripts": {
-    "build": "webpack",
-    "format": "prettier --write  '*.{json,js}' 'src/**/*.{js,ts}' 'test/**/*.{js,ts}'",
-    "lint": "eslint --max-warnings=0 src && prettier --check '*.{json,js}' 'src/**/*.{js,ts}' 'test/**/*.{js,ts}'",
-    "test": "jest --config jestconfig.json --verbose"
+    "build": "rollup -c",
+    "test": "jest",
+    "format": "prettier --write '**/*.{js,css,json,md}'"
   },
-  "author": "author",
-  "license": "MIT OR Apache-2.0",
-  "eslintConfig": {
-    "root": true,
-    "extends": [
-      "typescript",
-      "prettier"
-    ]
-  },
+  "license": "MIT",
   "devDependencies": {
-    "@cloudflare/workers-types": "^3.0.0",
+    "@cloudflare/workers-types": "^3.0",
+    "@rollup/plugin-commonjs": "^17.0.0",
+    "@rollup/plugin-node-resolve": "^11.1.0",
+    "@rollup/plugin-typescript": "^8.2.1",
+    "@types/is-odd": "^3.0.0",
     "@types/jest": "^26.0.23",
-    "@types/service-worker-mock": "^2.0.1",
-    "@typescript-eslint/eslint-plugin": "^4.16.1",
-    "@typescript-eslint/parser": "^4.16.1",
-    "eslint": "^7.21.0",
-    "eslint-config-prettier": "^8.1.0",
-    "eslint-config-typescript": "^3.0.0",
-    "jest": "^27.0.1",
-    "prettier": "^2.3.0",
-    "service-worker-mock": "^2.0.5",
-    "ts-jest": "^27.0.1",
-    "ts-loader": "^9.2.2",
-    "typescript": "^4.3.2",
-    "webpack": "^5.38.1",
-    "webpack-cli": "^4.7.0",
-    "@cloudflare/wrangler": "^1.19.6"
+    "isomorphic-fetch": "^3.0.0",
+    "jest": "^26.6.3",
+    "prettier": "^1.19.1",
+    "rollup": "^2.36.1",
+    "rollup-plugin-copy": "^3.3.0",
+    "rollup-plugin-terser": "^7.0.2",
+    "ts-jest": "^26.5.6",
+    "tslib": "^2.2.0",
+    "typescript": "^4.4.4"
+  },
+  "dependencies": {
+    "@cloudflare/wrangler": "^1.19.6",
+    "is-even": "^1.0.0",
+    "wrangler": "^0.0.4"
   }
 }
