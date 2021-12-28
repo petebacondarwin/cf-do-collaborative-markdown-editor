@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "my-typescript-worker",
+  "name": "cf-do-collaborative-markdown-editor",
   "version": "1.0.0",
   "description": "A practice worker project",
   "module": "./dist/index.mjs",
