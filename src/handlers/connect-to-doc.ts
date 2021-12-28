@@ -5,10 +5,11 @@ import { DurableDocEnvironment } from "../durable-objects/durable-doc";
  * to the durable object worker via a Web Socket.
  */
 export async function connectToDoc(
+  docId: string,
   request: Request,
   env: DurableDocEnvironment
 ) {
-  const id = env.docs.idFromName("my-doc");
+  const id = env.docs.idFromName(docId);
   const doc = await env.docs.get(id);
   return await doc.fetch(request);
 }

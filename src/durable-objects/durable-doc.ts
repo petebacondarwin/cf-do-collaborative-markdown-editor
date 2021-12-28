@@ -1,3 +1,5 @@
+import { renderer } from "./markdown-renderer";
+
 /**
  * The environment type for this durable object that is passed to the fetch handler.
  *
@@ -8,14 +10,18 @@ export interface DurableDocEnvironment {
 }
 
 export class DurableDoc implements DurableObject {
-  private content = "";
+  private content: string = null!;
   private sockets: WebSocket[] = [];
 
   constructor(private state: DurableObjectState, private env: unknown) {}
 
   async fetch(): Promise<Response> {
-    const { 0: client, 1: server } = new WebSocketPair();
+    if (this.content === null) {
+      const store = (await this.state.storage?.list<string>()) ?? [];
+      this.content = Array.from(store.values()).join("\n");
+    }
 
+    const { 0: client, 1: server } = new WebSocketPair();
     this.sockets.push(server);
     this.connect(server);
 
@@ -24,35 +30,58 @@ export class DurableDoc implements DurableObject {
 
   async connect(socket: WebSocket) {
     socket.accept();
-    socket.addEventListener("message", msg => this.update(msg));
+    socket.addEventListener("message", msg => this.handle(msg));
     socket.addEventListener("close", () => this.close(socket));
   }
 
-  update(msgEvent: MessageEvent) {
+  private async handle(msgEvent: MessageEvent) {
     const message = JSON.parse(msgEvent.data.toString());
-    if (message.type === "update") {
-      this.content = message.content;
+    switch (message.type) {
+      case "update":
+        this.content = message.content;
+        this.broadcast(changedMessage(this.content));
+        break;
+      case "init":
+        this.broadcast(changedMessage(this.content));
+        break;
+      case "save":
+        await this.save();
+        this.broadcast(savedMessage());
+        break;
     }
-    this.broadcast();
   }
 
-  broadcast() {
+  private broadcast(msg: unknown) {
+    const msgString = JSON.stringify(msg);
     for (const socket of this.sockets) {
-      socket.send(this.render());
+      socket.send(msgString);
     }
   }
 
-  close(socket: WebSocket) {
+  private close(socket: WebSocket) {
     const i = this.sockets.indexOf(socket);
     if (i !== -1) {
       this.sockets.splice(i, 1);
     }
   }
 
-  render(): string {
-    return JSON.stringify({
-      input: this.content,
-      output: this.content.toUpperCase()
-    });
+  private async save() {
+    await this.state.storage?.deleteAll();
+    const lines = this.content.split("\n");
+    await Promise.all(
+      lines.map((line, index) => this.state.storage?.put(String(index), line))
+    );
   }
+}
+
+function changedMessage(content: string) {
+  return {
+    type: "changed",
+    input: content,
+    output: renderer.render(content)
+  };
+}
+
+function savedMessage() {
+  return { type: "saved" };
 }

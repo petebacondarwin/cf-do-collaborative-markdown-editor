@@ -10,8 +10,13 @@ interface Environment extends DurableDocEnvironment {}
  */
 export default {
   async fetch(request: Request, env: Environment): Promise<Response> {
-    if (request.url.endsWith("/connect")) {
-      return await connectToDoc(request, env);
+    const url = new URL(request.url);
+    if (url.pathname.endsWith("/connect")) {
+      const docId = url.searchParams.get("doc");
+      if (docId === null) {
+        throw new Error("Missing doc id");
+      }
+      return await connectToDoc(docId, request, env);
     } else {
       return homePage();
     }

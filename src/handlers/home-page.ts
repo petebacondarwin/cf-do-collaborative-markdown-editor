@@ -8,26 +8,60 @@ export function homePage() {
     `
     <html>
       <body>
+        <button id="save">Save</button>
         <textarea id="input"></textarea>
         <div id="output"></div>
       </body>
 
       <script>
-        const input = document.getElementById('input');
-        const output = document.getElementById('output');
-        const socket = new WebSocket("wss://" + window.location.host + "/connect");
-        
+        const saveButton = document.getElementById('save');
+        const inputBox = document.getElementById('input');
+        const outputBox = document.getElementById('output');
+        const socket = new WebSocket("wss://" + window.location.host + "/connect?doc=my-doc");
+
+        // Inbound event handling
         socket.addEventListener('open', e => socket.send(JSON.stringify({type: 'init'})));
         socket.addEventListener('error', e => {debugger;});
         socket.addEventListener('close', e => {debugger;});
-        socket.addEventListener('message', e => update(e.data));
+        socket.addEventListener('message', e => {
+          const msg = JSON.parse(e.data);
+          switch(msg.type) {
+            case "changed":
+              updateUI(msg.input, msg.output);
+              break;
+            case "saved":
+              saveButton.textContent = "Save";
+              break;
+          }
+        });
 
-        input.addEventListener('input', e => socket.send(JSON.stringify({type: 'update', content: e.target.value})));
+        // Outbound event handling
+        input.addEventListener('input', e => updateServer(e.target.value));
+        saveButton.addEventListener('click', save);
+        
 
-        function update(data) {
-          const json = JSON.parse(data);
-          input.value = json.input;
-          output.innerHTML = json.output;
+        // Helper functions
+        let saveTimer = null;
+        function updateServer(content) {
+          socket.send(JSON.stringify({type: 'update', content}));
+
+          // Auto-save throttled to 2 second intervals
+          if (!saveTimer) {
+            saveTimer = setTimeout(() => {
+              save();
+              saveTimer = null;
+            }, 2000);
+          }
+        }
+
+        function updateUI(input, output) {
+          inputBox.value = input;
+          outputBox.innerHTML = output;
+        }
+
+        function save() {
+          socket.send(JSON.stringify({type: 'save'}));
+          saveButton.textContent = 'Saving...';
         }
       </script>
     </html>
