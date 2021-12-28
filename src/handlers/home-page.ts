@@ -8,8 +8,8 @@ export function homePage() {
     `
     <html>
       <body>
-        <button id="save">Save</button>
-        <textarea id="input"></textarea>
+        <button id="save" style="width:100px">Save</button>
+        <textarea id="input" style="width:100%; height: 200px"></textarea>
         <div id="output"></div>
       </body>
 
