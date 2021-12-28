@@ -12,3 +12,10 @@ command = "npm run build"
 [build.upload]
 format = "modules"
 main = "./index.mjs"
+
+[durable_objects]
+bindings = [{ name = "docs", class_name = "DurableDoc" }]
+
+[[migrations]]
+tag = "v1"
+new_classes = ["DurableDoc"]
